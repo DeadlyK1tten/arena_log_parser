@@ -9,11 +9,10 @@ Process log file.
 NOTE: Eventually will archive the log files. Right now, you have to do that manually. You need to replace output_log.txt
 each time you run.
 
-NOTE: Mulligans are not being tracked due to a design change. Will need to fix "soon"
+NOTE: Mulligan tracking fixed.
 
 No idea whether Bo3 will work.
 
-TODO: Redesign to track mulligans. (Currently, resets deck status after initial draw, but we need to keep looking.
 """
 
 

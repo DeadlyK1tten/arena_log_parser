@@ -7,7 +7,10 @@ Core code.
 """
 
 import ast
+import datetime
+
 import code.decks as decks
+
 
 log_handle = None
 
@@ -55,16 +58,20 @@ def ProcessFile(filename):
                 continue
         except:
             raise
-        if deck_handler is None:
-            deck_handler = FindDeck(transact, msg_list)
-            if deck_handler is not None:
+        try:
+            new_handler = FindDeck(transact, msg_list)
+            if new_handler is not None:
+                deck_handler = new_handler
                 deck_handler.user_name = user_name
-        else:
+        except UnmatchedDeck:
+            Log('Unmatched deck\n')
+            deck_handler = None
+        if deck_handler is not None:
             for msg in msg_list:
-                deck_handler.handle_message(msg, row)
+                deck_handler.handle_message(transact, msg, row)
             if deck_handler.IsDone():
                 deck_handler.Write(handle_draws)
-                deck_handler = None
+                deck_handler.Clear()
 
 
 def decks_equal(d1, d2):
@@ -75,6 +82,8 @@ def decks_equal(d1, d2):
             return False
     return True
 
+class UnmatchedDeck(Exception):
+    pass
 
 def FindDeck(transact, msg_list):
     """
@@ -97,6 +106,21 @@ def FindDeck(transact, msg_list):
                 if decks_equal(deck, t_deck):
                     obj = DeckInfo(transact, deck, deck_code)
                     return obj
+            # Is it Singleton?
+            mapper = {}
+            # Create a mapping from card # -> position
+            for pos in range(0, len(deck)):
+                mapper[deck[pos]] = pos
+            if len(mapper) == len(deck):
+                # Singleton if mapper has same # of entries as deck
+                # TODO: Validate this logic when Brawl hits.
+                if len(deck) == 59:
+                    code = 'BRAWL'
+                else:
+                    code = 'SING' + str(len(deck))
+                obj = SingletonDeck(transact, deck, code, mapper)
+                return obj
+            raise UnmatchedDeck('not in list')
 
 
 class DeckInfo(object):
@@ -108,9 +132,10 @@ class DeckInfo(object):
         self.draw = None
         self.user_name = '?'
         # Extra information to be filled in later: play time, opponent, build, ...
-        self.Paremeters = ''
 
-    def handle_message(self, msg, row):
+        self.Paremeters = 'PROC={0}'.format(datetime.datetime.now().isoformat(timespec='seconds'))
+
+    def handle_message(self, transact, msg, row):
         if 'gameStateMessage' in msg and 'ClientMessageType_MulliganResp' in row:
             if 'gameStateMessage' in msg:
                 Log('Found a game state message during mulligan')
@@ -118,6 +143,7 @@ class DeckInfo(object):
                 state_msg = msg['gameStateMessage']
                 # pprint.pprint(state_msg)
                 # pprint.pprint(state_msg['zones'])
+                self.transact = transact
                 for z in state_msg['zones']:
                     if (z['type'] == 'ZoneType_Hand' and z['ownerSeatId'] == 1):
                         hand = (z['objectInstanceIds'])
@@ -138,6 +164,10 @@ class DeckInfo(object):
     def IsDone(self):
         return (self.mulligan is not None) and (self.draw is not None)
 
+    def Clear(self):
+        self.mulligan = None
+        self.draw = None
+
     def Write(self, f):
         Log('Writing draw')
         draw = [str(x) for x in self.draw]
@@ -148,6 +178,27 @@ class DeckInfo(object):
         row += deck
         out = ';'.join(row)
         f.write(out + '\n')
+
+
+class SingletonDeck(DeckInfo):
+    def __init__(self, transact, deck, code, mapper):
+        super().__init__(transact, deck, code)
+        self.Mapping = mapper
+
+    def Write(self, f):
+        Log('Writing draw')
+        positions = [str(self.Mapping[x]) for x in self.draw]
+        draw = [str(x) for x in self.draw]
+        deck = [str(x) for x in self.deck]
+
+        row = [self.code, self.transact, self.user_name, self.Paremeters, str(self.mulligan)] + positions
+        row.append('-1')
+        row += draw
+        row.append('-2')
+        row += deck
+        out = ';'.join(row)
+        f.write(out + '\n')
+
 
 
 def aggregate30():
