@@ -24,6 +24,7 @@ detected.)
 - Bo3 modes.
 - More information on game: event type, opponent, gameplay time stamp.
 - Aggregation for other tests (Brawl, ...)
+- Card database: map the card code to card data, most importantly, land/nonland status.
 - Automation. (Current project does not touch anything outside local directories.)
 - Script to aggregate individual summaries.
 - Script to rebuild draws.txt from archive.

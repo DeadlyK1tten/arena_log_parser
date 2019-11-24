@@ -23,12 +23,15 @@ def Log(txt):
     log_handle.write(txt)
 
 
-def ProcessFile(filename):
+def ProcessFile(filename, debug = False):
     Log('Processing: ' + filename + '\n')
     f = open(filename, 'r')
     deck_handler = None
     user_name = '?'
-    handle_draws = open('draws.txt', 'a')
+    if debug:
+        handle_draws = open('draws_debug.txt', 'a')
+    else:
+        handle_draws = open('draws.txt', 'a')
     for row in f:
         # We are only looking for logged transactions, which are saved in a format that is compatible with w Python dict
         if not row.startswith('{ "transactionId":'):
@@ -200,8 +203,13 @@ class SingletonDeck(DeckInfo):
         f.write(out + '\n')
 
 
+def aggregate():
+    f = open('summary.txt', 'w')
+    aggregate30(f)
+    aggregate_singleton(f)
 
-def aggregate30():
+
+def aggregate30(f_out=None):
     """
     Minimal implementation of an aggregation, looking for the "30" test.
     :return:
@@ -238,9 +246,48 @@ def aggregate30():
     # convert to a string
     out_string = [str(x) for x in out]
     final = [target_code, user_name] + out_string
-    f = open('summary_30.txt', 'w')
-    f.write(','.join(final) + '\n')
+    if f_out is None:
+        f_out = open('summary_30.txt', 'w')
+    f_out.write(','.join(final) + '\n')
 
+
+def aggregate_singleton(f_out = None):
+    """
+    Aggregation
+    :return:
+    """
+    summaries = {
+        'SING60': [0] *60,
+        'BRAWL': [0] * 59,
+    }
+    f = open('draws.txt')
+    already_processed = set()
+    out = [0] * 8
+    user_name = '?'
+    for row in f:
+        data = row.split(';')
+        if len(data) < 10:
+            continue
+        [row_code, transact, user_name, params, mulligan] = data[0:5]
+        hand = data[5:12]
+        if not row_code in summaries:
+            continue
+        if transact in already_processed:
+            continue
+        already_processed.add(transact)
+        if not int(mulligan) == 0:
+            continue
+        for pos in hand:
+            summaries[row_code][int(pos)] += 1
+    if f_out is None:
+        f_out = open('summary_singleton.txt', 'w')
+    for k in summaries.keys():
+        if sum(summaries[k]) == 0:
+            continue
+        # convert to a string
+        out_string = [str(x) for x in summaries[k]]
+        final = [k, user_name] + out_string
+        f_out.write(','.join(final) + '\n')
 
 
 
