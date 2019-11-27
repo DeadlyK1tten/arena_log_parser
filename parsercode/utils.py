@@ -110,19 +110,25 @@ def FindDeck(transact, msg_list):
                     obj = DeckInfo(transact, deck, deck_code)
                     return obj
             # Is it Singleton?
+            Log('Looking for singleton status\n')
             mapper = {}
+            repeats = set()
             # Create a mapping from card # -> position
             for pos in range(0, len(deck)):
+                if deck[pos] in mapper:
+                    repeats.add(deck[pos])
                 mapper[deck[pos]] = pos
             if len(mapper) == len(deck):
                 # Singleton if mapper has same # of entries as deck
-                # TODO: Validate this logic when Brawl hits.
                 if len(deck) == 59:
                     code = 'BRAWL'
                 else:
                     code = 'SING' + str(len(deck))
                 obj = SingletonDeck(transact, deck, code, mapper)
                 return obj
+            else:
+                Log('Had repeated cards\n')
+                Log(str(repeats) + '\n')
             raise UnmatchedDeck('not in list')
 
 
