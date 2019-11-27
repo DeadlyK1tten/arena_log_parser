@@ -10,7 +10,7 @@ Writes to draws_debug.txt
 import glob
 import os
 
-import code.utils as utils
+import parsercode.utils as utils
 
 
 if __name__ == '__main__':

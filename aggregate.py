@@ -10,11 +10,11 @@ Main trick: need to ignore duplicated transactions.
 Not heavily tested... "aggregate30.py" was tested more.
 """
 
-import code.utils
+import parsercode.utils
 
 def main():
     print('Starting aggregation')
-    code.utils.aggregate()
+    parsercode.utils.aggregate()
 
 
 if __name__ == '__main__':

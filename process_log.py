@@ -16,7 +16,7 @@ No idea whether Bo3 will work.
 """
 
 
-import code.utils as utils
+import parsercode.utils as utils
 
 
 if __name__ == '__main__':

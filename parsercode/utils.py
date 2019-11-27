@@ -9,7 +9,7 @@ Core code.
 import ast
 import datetime
 
-import code.decks as decks
+import parsercode.decks as decks
 
 
 log_handle = None
@@ -151,13 +151,14 @@ class DeckInfo(object):
                     if (z['type'] == 'ZoneType_Hand' and z['ownerSeatId'] == 1):
                         hand = (z['objectInstanceIds'])
                 Log(str(hand) + '\n')
-                objects = state_msg['gameObjects']
-                mapping= {}
-                for obj in objects:
-                    mapping[obj['instanceId']] = obj['grpId']
-                card_ids = [mapping[x] for x in hand]
-                Log('Card IDs: ' + str(card_ids) +'\n')
-                self.draw = card_ids
+                if 'gameObjects' in state_msg:
+                    objects = state_msg['gameObjects']
+                    mapping= {}
+                    for obj in objects:
+                        mapping[obj['instanceId']] = obj['grpId']
+                    card_ids = [mapping[x] for x in hand]
+                    Log('Card IDs: ' + str(card_ids) +'\n')
+                    self.draw = card_ids
 
         if 'mulliganReq' in msg:
             # mulliganCount is not defined if zero.

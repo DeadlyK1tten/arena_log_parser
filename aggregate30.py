@@ -60,11 +60,11 @@ deck, and so any bias is obliterated. Mulligans are stored, but flagged as such,
 that might want to use mulligans.
 """
 
-import code.utils
+import parsercode.utils
 
 def main():
     print('Starting the 30-land aggregation')
-    code.utils.aggregate30()
+    parsercode.utils.aggregate30()
 
 
 if __name__ == '__main__':
