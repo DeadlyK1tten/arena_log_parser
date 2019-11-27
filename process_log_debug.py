@@ -13,5 +13,5 @@ if __name__ == '__main__':
         f.close()
         utils.ProcessFile('output_log.txt', debug=True)
     except Exception as ex:
-        utils.Log(str(ex))
+        utils.Log('{0}\n'.format(ex))
         raise

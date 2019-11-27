@@ -14,6 +14,7 @@ Initial test described in aggregate30.py
 
 # What's Changed
 
+- Patch to deal with internally inconsistent log.
 - Mulligan tracking fixed.
 - Archive script.
 - Brawl, singleton.

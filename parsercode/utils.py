@@ -162,9 +162,13 @@ class DeckInfo(object):
                     mapping= {}
                     for obj in objects:
                         mapping[obj['instanceId']] = obj['grpId']
-                    card_ids = [mapping[x] for x in hand]
-                    Log('Card IDs: ' + str(card_ids) +'\n')
-                    self.draw = card_ids
+                    try:
+                        card_ids = [mapping[x] for x in hand]
+                        Log('Card IDs: ' + str(card_ids) +'\n')
+                        self.draw = card_ids
+                    except KeyError:
+                        # There is a strange error where the objectId's for the hand have been deleted.
+                        Log('Hand cannot be mapped <?>\n')
 
         if 'mulliganReq' in msg:
             # mulliganCount is not defined if zero.
