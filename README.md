@@ -12,6 +12,7 @@ Testing section down below gives a summary of what to do.
 
 Initial test described in aggregate30.py
 
+See the file RunningThePackage.md for help.
 
 
 # What's Changed

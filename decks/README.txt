@@ -1,0 +1,1 @@
+Files in this directory are decks that have been archived (by deck_manager.py)
