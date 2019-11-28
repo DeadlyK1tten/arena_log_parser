@@ -4,7 +4,15 @@
 
 The first thing is that you need a fairly up to date Python installation. https://www.python.org/
 
-If you follow the default steps, you can double-click a Python script (.py) and it runs.
+If you follow the default steps, you should be able to double-click a Python script (.py) and it runs.
+
+Other ways of running a script
+- On the command line. Go to the script directory (where this file is), and then type 
+python scriptname.py (You may need to supply the full path to python.exe)
+- Right-click the script, and select "edit with Idle" (a Python editor that is installed by 
+default.) You can run from inside Idle, and see the output.
+- Install a integrated development environment (IDE). Although more complex, probably
+easier to integrate with GitHub.
 
 ## Get The Code Repository
 

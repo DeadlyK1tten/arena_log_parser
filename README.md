@@ -14,6 +14,13 @@ Initial test described in aggregate30.py
 
 See the file RunningThePackage.md for help.
 
+Note that there was a GitHub package that forked from the MTGA Tool to generate a big study.
+However, one would need to get the code up-to-date with respect to MTGA Tool, and get 
+cooperation with those developers. Obviously, a much larger project. Any ongoing statistical
+analysis would have to supported by the tracker developers, and would obviously be more
+powerful.
+https://github.com/dougmill/MTG-Arena-Tool/tree/shuffler-stats
+
 
 # What's Changed
 
