@@ -21,7 +21,7 @@ if __name__ == '__main__':
     file_list = glob.glob(os.path.join('archive', 'output_log*.txt'))
     for filename in file_list:
         try:
-            utils.ProcessFile(filename, debug=True)
+            utils.ProcessFile(filename, debug=True, verbose=False)
         except Exception as ex:
             utils.Log(str(ex))
             raise

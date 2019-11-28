@@ -23,7 +23,18 @@ def Log(txt):
     log_handle.write(txt)
 
 
-def ProcessFile(filename, debug = False):
+def ProcessFile(filename, debug = False, verbose=False):
+    """
+    Go through file, line by line.
+
+    All the information we need (?) are stored in what are almost Python dict objects converted to a single line
+    text representation. That is all we are looking for.
+
+    :param filename:
+    :param debug:
+    :param verbose:
+    :return:
+    """
     Log('Processing: ' + filename + '\n')
     f = open(filename, 'r')
     deck_handler = None
@@ -39,40 +50,60 @@ def ProcessFile(filename, debug = False):
         # They use true instead of True... Must be a better way of doing this, but...
         row = row.replace('true', 'True')
         row = row.replace('false', 'False')
-        try:
+        if verbose:
             Log('Found a transaction row\n')
             Log(row + '\n')
             Log('Evaluating\n')
-            # This should be safe; just allows low-level Python objects, no code execution
-            d = ast.literal_eval(row)
-            # Find user name if it exists
-            if 'authenticateResponse' in d:
-                if 'screenName' in d['authenticateResponse']:
-                    user_name = d['authenticateResponse']['screenName']
-                    Log('Found screen name: ' + user_name + '\n')
-                    if user_name.startswith('DeadlyK1tten'):
-                        user_name = 'Amaz1ngK1tten'
-            if 'greToClientEvent' in d:
-                transact = d['transactionId']
-                msg_list = d['greToClientEvent']['greToClientMessages']
-                Log('Transaction: {0}\n'.format(transact))
-                # pprint.pprint(msg.keys())
-            else:
+        # This should be safe; just allows low-level Python objects, no code execution
+        d = ast.literal_eval(row)
+        # We need to get some initial information in early "transactions"
+        # Find user name if it exists
+        if 'authenticateResponse' in d:
+            if 'screenName' in d['authenticateResponse']:
+                user_name = d['authenticateResponse']['screenName']
+                Log('Found screen name: ' + user_name + '\n')
+        # This message tells us what players are in the game. We need this
+        # information to get the player ID ("systemSeatId"). The deck will have already been found,
+        # or otherwise we cannot tell what is going on.
+        if 'matchGameRoomStateChangedEvent' in d:
+            try:
+                player_list = d['matchGameRoomStateChangedEvent']['gameRoomInfo']['gameRoomConfig']['reservedPlayers']
+            except KeyError:
+                Log('Mangled matchGameRoomStateChangedEvent event')
                 continue
-        except:
-            raise
+            for p in player_list:
+                if p['playerName'] == user_name:
+                    player_number = p['systemSeatId']
+                    if deck_handler is not None:
+                        deck_handler.player_number = player_number
+        # greToClientEvents are broadcast messages. Includes the deck list.
+        # Can split information between multiple "messages" within the transaction.
+        if 'greToClientEvent' in d:
+            transact = d['transactionId']
+            msg_list = d['greToClientEvent']['greToClientMessages']
+            Log('Transaction: {0}\n'.format(transact))
+            # pprint.pprint(msg.keys())
+        else:
+            # Nothing to process
+            continue
         try:
+            # We need see whether a new deck message has been sent.
             new_handler = FindDeck(transact, msg_list)
             if new_handler is not None:
                 deck_handler = new_handler
                 deck_handler.user_name = user_name
+                player_number = None
         except UnmatchedDeck:
             Log('Unmatched deck\n')
             deck_handler = None
+        # If we have a deck handler, we can now attempt to process messages, which are mulligan responses.
         if deck_handler is not None:
             for msg in msg_list:
                 deck_handler.handle_message(transact, msg, row)
+            # Once we have the deck, the mulligan count, and the initial draw, that's it.
             if deck_handler.IsDone():
+                if deck_handler.user_name.startswith('DeadlyK1tten'):
+                    deck_handler.user_name = 'Amaz1ngK1tten'
                 deck_handler.Write(handle_draws)
                 deck_handler.Clear()
 
@@ -140,6 +171,7 @@ class DeckInfo(object):
         self.mulligan = None
         self.draw = None
         self.user_name = '?'
+        self.player_number = None
         # Extra information to be filled in later: play time, opponent, build, ...
 
         self.Paremeters = 'PROC={0}'.format(datetime.datetime.now().isoformat(timespec='seconds'))
@@ -147,31 +179,34 @@ class DeckInfo(object):
     def handle_message(self, transact, msg, row):
         if 'gameStateMessage' in msg and 'ClientMessageType_MulliganResp' in row:
             if 'gameStateMessage' in msg:
-                Log('Found a game state message during mulligan')
+                Log('Found a game state message during mulligan\n')
                 hand = []
                 state_msg = msg['gameStateMessage']
                 # pprint.pprint(state_msg)
                 # pprint.pprint(state_msg['zones'])
                 self.transact = transact
-                for z in state_msg['zones']:
-                    if (z['type'] == 'ZoneType_Hand' and z['ownerSeatId'] == 1):
-                        hand = (z['objectInstanceIds'])
-                Log(str(hand) + '\n')
                 if 'gameObjects' in state_msg:
                     objects = state_msg['gameObjects']
-                    mapping= {}
+                    mapping = {}
                     for obj in objects:
                         mapping[obj['instanceId']] = obj['grpId']
-                    try:
-                        card_ids = [mapping[x] for x in hand]
-                        Log('Card IDs: ' + str(card_ids) +'\n')
-                        self.draw = card_ids
-                    except KeyError:
-                        # There is a strange error where the objectId's for the hand have been deleted.
-                        Log('Hand cannot be mapped <?>\n')
+                    for z in state_msg['zones']:
+                        if (z['type'] == 'ZoneType_Hand'): # and z['ownerSeatId'] == self.player_number):
+                            hand = (z['objectInstanceIds'])
+                            # Log('Hand: ' + str(hand) + '\n')
+                            try:
+                                card_ids = [mapping[x] for x in hand]
+                                Log('Card IDs: ' + str(card_ids) +'\n')
+                                if not len(card_ids) == 7:
+                                    Log('Logic error - initial draw does not have 7 cards.')
+                                else:
+                                    self.draw = card_ids
+                            except KeyError:
+                                # Opponent's hand, can't map
+                                pass
 
         if 'mulliganReq' in msg:
-            # mulliganCount is not defined if zero.
+            # mulliganCount is not defined if zero. get(x,0) returns 0, if the key "x" does not exist.
             self.mulligan = msg['mulliganReq'].get('mulliganCount', 0)
             Log('Found mulligan count = {0}\n'.format(self.mulligan))
 

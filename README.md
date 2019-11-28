@@ -12,9 +12,14 @@ Testing section down below gives a summary of what to do.
 
 Initial test described in aggregate30.py
 
+
+
 # What's Changed
 
-- Patch to deal with internally inconsistent log.
+Made some changes that appear to have fixed issues. What was happening was that I needed
+to take into account player ID changing; for bot matches, always player ID of 1. Still need to look
+at it.
+
 - Mulligan tracking fixed.
 - Archive script.
 - Brawl, singleton.

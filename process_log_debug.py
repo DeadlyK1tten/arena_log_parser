@@ -11,7 +11,7 @@ if __name__ == '__main__':
     try:
         f = open('draws_debug.txt', 'w')
         f.close()
-        utils.ProcessFile('output_log.txt', debug=True)
+        utils.ProcessFile('output_log.txt', debug=True, verbose=True)
     except Exception as ex:
         utils.Log('{0}\n'.format(ex))
         raise
