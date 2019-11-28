@@ -15,6 +15,9 @@ No idea whether Bo3 will work.
 
 """
 
+import os
+import sys
+import traceback
 
 import parsercode.utils as utils
 
@@ -22,7 +25,14 @@ import parsercode.utils as utils
 if __name__ == '__main__':
     utils.Log('Starting\n')
     try:
-        utils.ProcessFile('output_log.txt')
+        if not os.path.exists('output_log.txt'):
+            utils.Log('Arena log file "output_log.txt" not in running directory (normally same as process_log.py')
+            utils.Log('Current working directory = {0}\n'.format(os.getcwd()))
+            o = input('Hit return to continue >')
+        else:
+            utils.ProcessFile('output_log.txt')
     except Exception as ex:
-        utils.Log(str(ex))
+        utils.Log(traceback.format_exc() + '\n')
+        traceback.print_exc(file=sys.stdout)
+        o = input('Hit return to continue >')
         raise
