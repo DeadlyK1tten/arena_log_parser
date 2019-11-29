@@ -1,6 +1,8 @@
 """
 Process the log files of the format "UTC_Log <date> <time>.log"
 
+Thanks to user Ragnoraok for pointing out the location of these files; much more convenient.
+
 On my machine, they are created by Arena in C:\\Program Files (x86)\\Wizards of the Coast\\MTGA\\MTGA_Data\\Logs\\Logs
 
 They then need to be copied to the UTC_logs subdirectory. (Below where this file sits.)
