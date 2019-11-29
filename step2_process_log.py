@@ -1,8 +1,12 @@
 """
-Process log file.
+Process log file. Second step (first is copy the file!).
+
+NOTE: This file processes the Arena log file named "output_log.txt"
+Use process_UTC_logs.py to process the log files of the form "UTC_Log <date> <time>.log".
+If using that script, no need to worry about the archive operation.
 
 (0) Install a recent version (version 3+) of Python. Learn how to run scripts.
-(1) Copy output_log.txt to this directory.
+(1) Copy "output_log.txt" to this directory.
 (2) Run this script.
 (3) Creates/updates files: log.txt (log file), draws.txt (database of parsed draws).
 

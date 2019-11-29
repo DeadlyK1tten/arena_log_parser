@@ -10,8 +10,6 @@ take a lot of effort to break things.
 
 Testing section down below gives a summary of what to do.
 
-Initial test described in aggregate30.py
-
 See the file RunningThePackage.md for help.
 
 Note that there was a GitHub package that forked from the MTGA Tool to generate a big study.
@@ -21,6 +19,8 @@ analysis would have to supported by the tracker developers, and would obviously 
 powerful.
 https://github.com/dougmill/MTG-Arena-Tool/tree/shuffler-stats
 
+Note: includes a basic Arena deck manager script (deck_manager.py). This script requires 
+installation of a package that is not in base Python. Google "python pip install instructions"
 
 # What's Changed
 
@@ -33,15 +33,30 @@ at it.
 - Brawl, singleton.
 - Aggregation script.
 
-# TODO
+# Upcoming Work
 
-- Bo3 modes.
+Immediate needs:
+
+- Create a script that works from the "UTC" logs found in the executable directory.
+- Aggregation fixes.
+- Multi-User Aggregation.
+- User Docs (assuming stability)
+
+After that, there will be a redesign: the log parser will first generate an initial draw 
+database, *of all draws*. Then, the aggregation scripts will blast through the master draw file,
+and then extract the test aggregate data.
+
+Why make this change? People can use whatever tools they want to analyse the draw database. For 
+example, masochists could do analysis in Excel (not recommended). Also, the only code that is 
+vulnerable to WotC changing the log file structure is the parsing code. By isolating it to a 
+self-contained package, it can be replaced by whatever else people can come up with.
+
+Other stuff:
+
+- Bo3 mode testing.
 - More information on game: event type, opponent, gameplay time stamp.
-- Aggregation for other tests (Brawl, ...)
 - Card database: map the card code to card data, most importantly, land/nonland status.
 - Automation. (Current project does not touch anything outside local directories.)
-- Script to aggregate individual summaries.
-- Script to rebuild draws.txt from archive.
 - For somebody else: can data be aggregated automatically on some central point?
 
 # Testing

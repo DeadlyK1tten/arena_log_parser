@@ -8,12 +8,27 @@ Core code.
 
 import ast
 import datetime
+import os
 
 import parsercode.decks as decks
 
 
 log_handle = None
 
+
+def SetWorkingDirectory(base_file):
+    """
+    Set the working directory to match that of a target file. Used by scripts to eliminate issues from
+    different invocation points.
+    :param base_file: str
+    :return:
+    """
+    os.chdir(os.path.dirname(base_file))
+
+def ArchiveUTClog(original):
+    base = os.path.basename(original)
+    target = os.path.join('UTC_logs', 'parsed', base)
+    os.rename(original, target)
 
 def Log(txt):
     global log_handle
@@ -221,8 +236,12 @@ class DeckInfo(object):
         Log('Writing draw')
         draw = [str(x) for x in self.draw]
         deck = [str(x) for x in self.deck]
-
-        row = [self.code, self.transact, self.user_name, self.Paremeters, str(self.mulligan)] + draw
+        cut_name = self.user_name
+        # Eliminate # digits.
+        pos = cut_name.find('#')
+        if pos > -1:
+            cut_name = cut_name[0:pos]
+        row = [self.code, self.transact, cut_name, self.Paremeters, str(self.mulligan)] + draw
         row.append('-1')
         row += deck
         out = ';'.join(row)
@@ -335,7 +354,58 @@ def aggregate_singleton(f_out = None):
         final = [k, user_name] + out_string
         f_out.write(','.join(final) + '\n')
 
+class TrialData(object):
+    def __init__(self, user, n, vector):
+        self.user = user
+        self.n = n
+        self.vector = vector
 
+def SumUpAllUserData(fname):
+    f = open(fname, 'r')
+    Log('Summing up trials')
+    summaries = {}
+    for row in f:
+        pos = row.find('%')
+        if pos > -1:
+            row = row[0:pos]
+        row = row.strip()
+        data = row.split(',')
+        if len(data) < 3:
+            continue
+        test = data[0]
+        user = data[1]
+        pos = user.find('#')
+        if pos > -1:
+            user = user[0:pos]
+        vector = data[2:]
+        # Remove any "=n" text from last entry
+        pos = vector[-1].find('=')
+        if pos > -1:
+            vector[-1] = vector[-1][0:pos]
+        try:
+            vector_numeric = [int(x) for x in vector]
+        except:
+            Log('Could not parse data in row: \n')
+            Log(row + '\n')
+            continue
+        n = sum(vector_numeric)
+        if test in ('SING60', 'BRAWL'):
+            if not n % 7 == 0:
+                Log(row)
+                raise ValueError('Summary with incorrect card counts (see log)')
+            n = n /7
+        trial_data = TrialData(user, n, vector)
+        kkey = (test, user)
+        if kkey in summaries:
+            other = summaries[kkey]
+            if trial_data.n > other.n:
+                Log('Replacing smaller trial data {0}, {1}\n'.format(test, user))
+                summaries[kkey] = trial_data
+            else:
+                Log('lower trial count summary, ignored {0},{1}\n'.format(test, user))
+        else:
+            Log('New entry: {0},{1}\n'.format(test, user))
+            summaries[kkey] = trial_data
 
 
 

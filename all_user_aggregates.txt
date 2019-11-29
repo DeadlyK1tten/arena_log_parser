@@ -1,0 +1,10 @@
+% All user aggregates
+% This is a text file, to be edited manually.
+% Paste aggregate summaaries into here.
+% Note that a single user's data can appear multiple times; only the largest valid summary is used.
+30,Amaz1ngK1tten,0,2,6,5,7,4,1,0
+SING60,Amaz1ngK1tten,1,2,0,1,2,1,1,0,0,1,0,1,0,1,1,0,0,2,0,1,0,0,1,0,0,1,1,2,0,0,0,1,0,1,2,1,2,0,0,0,0,1,0,2,0,0,1,1,1,0,1,2,0,1,1,1,0,1,1,1
+BRAWL,Amaz1ngK1tten,0,2,1,0,2,0,1,0,0,1,3,1,2,1,0,3,1,2,0,1,1,1,1,3,1,3,1,1,1,1,1,0,2,0,1,0,1,1,0,1,0,3,2,1,0,2,1,2,1,0,0,0,0,0,1,4,2,0,2
+% Put a small summary to help test that we ignore them.
+30,Amaz1ngK1tten#1,0,0,0,0,0,1,0,0=1
+30,Amaz1ngK1tten1,this,line,will,trigger,an,error,for,testing

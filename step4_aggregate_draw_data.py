@@ -7,7 +7,7 @@ Processes both Brawl, singleton and "30" trials.
 
 Main trick: need to ignore duplicated transactions.
 
-Not heavily tested... "aggregate30.py" was tested more.
+Not heavily tested...
 """
 
 import parsercode.utils
