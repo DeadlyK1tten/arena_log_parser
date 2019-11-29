@@ -27,6 +27,8 @@ updates, all the files in those directories need to be updated.
 
 ## Operating Steps
 
+*TODO: Scripts have been renamed, this documentation needs to be updated.*
+
 Detailed logging has to be turned on in the client settings. (Also needed for trackers.)
 
 You then need to find the Arena log file file: output_log.txt. For me, it was under
