@@ -27,36 +27,31 @@ updates, all the files in those directories need to be updated.
 
 ## Operating Steps
 
-*TODO: Scripts have been renamed, this documentation needs to be updated.*
+Note that the scripts in the base directory are divided between "debug_*.py" and "run_*.py"
+scripts. The debug versions are for development use.
 
-Detailed logging has to be turned on in the client settings. (Also needed for trackers.)
+The recommended way to work with this package is via the "UTC Logs". (The original version
+used the log file "output_log.txt".)
 
-You then need to find the Arena log file file: output_log.txt. For me, it was under
-c:\users\<name>\AppData\LocalLow\Wizards Of The Coast\MTGA\
+- **run_1_fetch_UTC_logs.py** Copies the "UTC logs" to the "UTC_logs" sub-directory. You may 
+need to patch the directory used if different, or work around read/write permissions.
 
-Copy the log file to the base directory. (I have a bat file that does this; I keep this
-package self-contained and not mucking around in external directories, so I leave that to 
-you.)
+- **run_2_parse_UTC_logs.py** Once the UTC logs are copies into the UTC_logs sub-directory,
+they are parsed, and the draw database ("draw_database.txt"). Analysis tools work on this
+text database (";"-delimited file).
 
-Then, if you execute "process_log.py", the log file should be parsed.
+- **run_3_create_summary.py** Builds a summary of the various statistical tests based on
+the draw database.
 
-- There will be a console window dumping a load of stuff.
-- It will look for testing decks, and write draw information into "draws.txt." This file
-is your draw database. 
-- There is a log file "log.txt" which says what the script did.
+There are other scripts, but for more advanced operations. For example, a land draw database
+can be created (but currently no statistical tests developed).
 
-You can then look at draws.txt, and see whether it picked up your data. Each row corresponds 
-to a parsed draw. If you just run one or two tests in a session, you should sort-of figure
-out what is happening.
+The parsing script is most likely to fail due to log file format changes. However, once the
+parsing is complete, the remaining code should work with the draw database, which should 
+have a more stable format.
 
-(If you want to run the parsing without touching draws.txt, run process_log_debug.py. It 
-writes to "draws_debug.txt" (which is overwritten each time). This allows you to see what is
-parsed from a single output_log.txt.)
+If users are unable to access the "UTC logs", will need to add back support for output_log.txt.
 
-Once you are done with a file, run "archive.py". It will copy output_log.txt to the "archive"
-directory, attaching a number to it. The process_archive.py script blasts through all those
-files and writes the results to draws_debug.txt. So long as you keep your archive, all your game
-logs can be re-processed (if there is a bug, or new feature).
 
 # Troubleshooting
 
@@ -67,7 +62,6 @@ Pretty much anything can go wrong. Right now, I am just guessing.
 subdirectory.
 - The file output_log.txt has to be in the same directory as process_log.py.
 - Log file formats can vary, and I have not tested best-of-3 ("Traditional") at all.
-
 
 If there is something wrong when parsing data, the scripts crash. That is because a crash
 is better than writing corrupted data to draws.txt, or doing nothing (since trials will 

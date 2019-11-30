@@ -24,13 +24,13 @@ import sys
 import traceback
 
 import parsercode.utils as utils
-
+import parsercode.parsefile as parsefile
 
 if __name__ == '__main__':
     utils.Log('Starting\n')
     try:
         if not os.path.exists('output_log.txt'):
-            utils.Log('Arena log file "output_log.txt" not in running directory (normally same as process_log.py')
+            utils.Log('Arena log file "output_log.txt" not in running directory (same as this file)')
             utils.Log('Current working directory = {0}\n'.format(os.getcwd()))
             o = input('Hit return to continue >')
         else:

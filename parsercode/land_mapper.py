@@ -1,6 +1,11 @@
 """
 Code to convert raw draw database into a land draw database.
 
+Needs to have the land mapping database set up (land_mapping.txt). This is created by running
+search_UTC_logs_for_card_definitions.py.
+
+
+
 """
 
 from parsercode.utils import Log
@@ -16,12 +21,21 @@ def build_land_draw_database(use_last=False):
     else:
         f_prod = open('land_draws.txt', 'a')
     land_mapper = utils.LoadLandMapping()
+    already_processed = set()
     cnt = 0
     for row in f_in:
         data = row.split(';')
-        for pos in range(8,len(data)):
-            if not data[pos] == '-1':
+        transact = data[0]
+        # Eat redundant rows.
+        if transact in already_processed:
+            continue
+        already_processed.add(transact)
+        delim = str(utils.draw_database_separator)
+        for pos in range(utils.draw_database_header_size,len(data)):
+            if not data[pos] == delim:
                 data[pos] = land_mapper.get(int(data[pos].strip()), '?')
         out_row = ';'.join(data) + '\n'
         f_out.write(out_row)
+        if f_prod is not None:
+            f_prod.write(out_row)
 

@@ -15,6 +15,9 @@ import parsercode.decks as decks
 
 log_handle = None
 
+# How many entries in the front of the draw database rows? Afterward, it is [draw],-1,[deck]
+draw_database_header_size = 8
+draw_database_separator = -1
 
 def SetWorkingDirectory(base_file):
     """
