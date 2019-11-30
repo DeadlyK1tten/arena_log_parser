@@ -233,3 +233,41 @@ class DeckInfo(object):
         row += deck
         out = ';'.join(row)
         return out + '\n'
+
+
+def GetCardDefinitions(filename, land_mapping):
+    Log('Processing: ' + filename + '\n')
+    f = open(filename, 'r')
+    for row in f:
+
+        # We are only looking for logged transactions, which are saved in a format that is compatible with w Python dict
+        if not row.startswith('{ "transactionId":'):
+            continue
+        # They use true instead of True... Must be a better way of doing this, but...
+        row = row.replace('true', 'True')
+        row = row.replace('false', 'False')
+        # This should be safe; just allows low-level Python objects, no code execution
+        d = ast.literal_eval(row)
+
+        if 'greToClientEvent' in d:
+            transact = d['transactionId']
+            msg_list = d['greToClientEvent']['greToClientMessages']
+            # Log('Transaction: {0}\n'.format(transact))
+            for msg in msg_list:
+                try:
+                    data = msg['gameStateMessage']['gameObjects']
+                    for obj in data:
+                        if obj['type'] == 'GameObjectType_Card':
+                            grpId = obj['grpId']
+                            is_land = 'CardType_Land' in obj['cardTypes']
+                            if is_land:
+                                land_mapping[grpId] = 'L'
+                            else:
+                                land_mapping[grpId] = 'N'
+                except KeyError:
+                    pass
+        else:
+            # Nothing to process
+            continue
+
+

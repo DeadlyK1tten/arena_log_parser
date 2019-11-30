@@ -38,6 +38,18 @@ def Log(txt):
     log_handle.write(txt)
 
 
+def LoadLandMapping():
+    if os.path.exists('land_mapping.txt'):
+        f = open('land_mapping.txt', 'r')
+    else:
+        Log('Using Repository data to build initial database')
+        f = open('land_mapping_repository.txt', 'r')
+    txt = ''
+    for row in f:
+        txt += row
+    land_mapping = ast.literal_eval(txt)
+    return land_mapping
+
 def ProcessFile(filename, debug = False, verbose=False):
     """
     Go through file, line by line.

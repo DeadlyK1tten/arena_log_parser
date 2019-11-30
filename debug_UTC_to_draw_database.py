@@ -23,18 +23,19 @@ import os
 import traceback
 
 import parsercode.utils as utils
+import parsercode.parsefile as parsefile
 
 
 if __name__ == '__main__':
     utils.Log('Starting\n')
     try:
         utils.SetWorkingDirectory(__file__)
-        utils.Log('Clearing the debug draw database')
-        f = open('draws_debug.txt', 'w')
+        utils.Log('Clearing the last draw database')
+        f = open('draw_database_last.txt', 'w')
         f.close()
         file_list = glob.glob(os.path.join('UTC_logs', 'UTC_log*.log'))
         for filename in file_list:
-            utils.ProcessFile(filename, debug=True, verbose=False)
+            parsefile.ProcessFile(filename, append_production=False, verbose=False)
             utils.ArchiveUTClog(filename)
     except Exception as ex:
         utils.Log(traceback.format_exc() + '\n')
