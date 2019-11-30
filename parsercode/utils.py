@@ -309,11 +309,12 @@ def aggregate30(f_out=None):
         print(count)
         out[count] += 1
     # convert to a string
+    trials = sum(out)
     out_string = [str(x) for x in out]
     final = [target_code, user_name] + out_string
     if f_out is None:
         f_out = open('summary_30.txt', 'w')
-    f_out.write(','.join(final) + '\n')
+    f_out.write(','.join(final) + '={0}\n'.format(trials))
 
 
 def aggregate_singleton(f_out = None):
@@ -347,12 +348,13 @@ def aggregate_singleton(f_out = None):
     if f_out is None:
         f_out = open('summary_singleton.txt', 'w')
     for k in summaries.keys():
-        if sum(summaries[k]) == 0:
+        trials = int(sum(summaries[k])/7)
+        if trials == 0:
             continue
         # convert to a string
         out_string = [str(x) for x in summaries[k]]
         final = [k, user_name] + out_string
-        f_out.write(','.join(final) + '\n')
+        f_out.write(','.join(final) + '={0}\n'.format(trials))
 
 class TrialData(object):
     def __init__(self, user, n, vector):
@@ -364,6 +366,7 @@ def SumUpAllUserData(fname):
     f = open(fname, 'r')
     Log('Summing up trials')
     summaries = {}
+    tests_dictionary = {}
     for row in f:
         pos = row.find('%')
         if pos > -1:
@@ -393,8 +396,8 @@ def SumUpAllUserData(fname):
             if not n % 7 == 0:
                 Log(row)
                 raise ValueError('Summary with incorrect card counts (see log)')
-            n = n /7
-        trial_data = TrialData(user, n, vector)
+            n = int(n /7)
+        trial_data = TrialData(user, n, vector_numeric)
         kkey = (test, user)
         if kkey in summaries:
             other = summaries[kkey]
@@ -406,6 +409,38 @@ def SumUpAllUserData(fname):
         else:
             Log('New entry: {0},{1}\n'.format(test, user))
             summaries[kkey] = trial_data
+            if test in tests_dictionary:
+                tests_dictionary[test].append(user)
+            else:
+                tests_dictionary[test] = [user]
+    test_list = list(tests_dictionary.keys())
+    test_list.sort()
+    f_out = open('summary_all_users.txt', 'w')
+    for test in test_list:
+        f_out.write('Test: {0}\n'.format(test))
+        users = tests_dictionary[test]
+        total = None
+        N = 0
+        for user in users:
+            k = (test, user)
+            trial_data = summaries[k]
+            if total is None:
+                total = trial_data.vector
+                N += trial_data.n
+            else:
+                if not len(trial_data.vector) == len(total):
+                    raise ValueError('Data for user {0} for test {1} is not same length\n'.format(user, test))
+                N += trial_data.n
+                total = [x+y for x,y in zip(total, trial_data.vector)]
+        f_out.write('Number of users: {0}\n'.format(len(users)))
+        f_out.write('Number of trials: {0}\n'.format(N))
+        f_out.write('Distribution\n')
+        t_s = [str(x) for x in total]
+        f_out.write('{0}\n'.format(', '.join(t_s)))
+
+
+
+
 
 
 
