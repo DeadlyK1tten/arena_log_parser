@@ -28,6 +28,8 @@ def ProcessFile(filename, append_production=False, verbose=False):
     draw_time = '?'
     match_type = '?'
     handle_last = open('draw_database_last.txt', 'a')
+    # Move game info into an object. Will delete "floating variables" later.
+    game_info = GameInfo()
     if append_production:
         handle_prod = open('draw_database.txt', 'a')
     else:
@@ -72,13 +74,16 @@ def ProcessFile(filename, append_production=False, verbose=False):
         # information to get the player ID ("systemSeatId"). The deck will have already been found,
         # or otherwise we cannot tell what is going on.
         if 'matchGameRoomStateChangedEvent' in d:
+            Log('Found matchGameRoomStateChangedEvent; clearing GameInfo')
+            game_info = GameInfo()
             try:
                 match_type =  d['matchGameRoomStateChangedEvent']['gameRoomInfo']['gameRoomConfig']['eventId']
                 Log('Found match type: {0}\n'.format(match_type))
-                if deck_handler is not None:
-                    deck_handler.match_type = match_type
-                    # Clear now that it is stored in the deck
-                    match_type = '?'
+                game_info.match_type = match_type
+                # if deck_handler is not None:
+                #     deck_handler.match_type = match_type
+                #     # Clear now that it is stored in the deck
+                #     match_type = '?'
             except KeyError:
                 pass
             try:
@@ -89,12 +94,15 @@ def ProcessFile(filename, append_production=False, verbose=False):
             for p in player_list:
                 if p['playerName'] == user_name:
                     player_number = p['systemSeatId']
+                    game_info.player_number = player_number
                     if deck_handler is not None:
                         deck_handler.player_number = player_number
                 else:
-                    if deck_handler is not None:
-                        deck_handler.other_player = p['playerName']
-                        Log('Found other player: {0}\n'.format(deck_handler.other_player))
+                    game_info.other_player = p['playerName']
+                    Log('Found other player: {0}\n'.format(game_info.other_player))
+                    # if deck_handler is not None:
+                    #     deck_handler.other_player = p['playerName']
+                    #     Log('Found other player: {0}\n'.format(deck_handler.other_player))
         # greToClientEvents are broadcast messages. Includes the deck list.
         # Can split information between multiple "messages" within the transaction.
         if 'greToClientEvent' in d:
@@ -124,7 +132,7 @@ def ProcessFile(filename, append_production=False, verbose=False):
             if deck_handler.IsDone():
                 if deck_handler.user_name.startswith('DeadlyK1tten'):
                     deck_handler.user_name = 'Amaz1ngK1tten'
-                lline = deck_handler.Format()
+                lline = deck_handler.Format(game_info)
                 handle_last.write(lline)
                 if handle_prod is not None:
                     handle_prod.write(lline)
@@ -151,6 +159,13 @@ def FindDeck(transact, msg_list):
             return obj
 
 
+class GameInfo(object):
+    def __init__(self):
+        self.player_number = None
+        self.other_player = '?'
+        self.match_type = '?'
+
+
 class DeckInfo(object):
     def __init__(self, transact, deck):
         self.deck = deck
@@ -160,6 +175,7 @@ class DeckInfo(object):
         self.draw = None
         self.user_name = '?'
         self.player_number = None
+        # Note: data will migrate to GameInfo
         self.other_player = '?'
         self.build = '?'
         self.match_type = '?'
@@ -217,7 +233,7 @@ class DeckInfo(object):
         self.mulligan = None
         self.draw = None
 
-    def Format(self):
+    def Format(self, game_info):
         Log('Formating draw\n')
         draw = [str(x) for x in self.draw]
         deck = [str(x) for x in self.deck]
@@ -227,7 +243,7 @@ class DeckInfo(object):
         if pos > -1:
             cut_name = cut_name[0:pos]
 
-        row = [self.transact, self.build, cut_name, self.match_type, self.file_name, self.other_player, self.Paremeters,
+        row = [self.transact, self.build, cut_name, game_info.match_type, self.file_name, game_info.other_player, self.Paremeters,
                str(self.mulligan)] + draw
         row.append('-1')
         row += deck
