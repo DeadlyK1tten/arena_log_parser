@@ -6,7 +6,7 @@ a multi-user draw database, might need to fix.
 
 """
 
-from parsercode.utils import Log as Log
+from parsercode.utils import Log as Log, format_float
 import parsercode.utils as utils
 
 
@@ -137,11 +137,6 @@ class Test30Mulligan(Test30):
         out = ','.join(row) + '={0}\n'.format(sum(self.total))
         return out
 
-def format_float(x):
-    out = '{:.1f}'.format(x)
-    if out.endswith('.0'):
-        out = out[0:-2]
-    return out
 
 class TestAllPositions(Test):
     """

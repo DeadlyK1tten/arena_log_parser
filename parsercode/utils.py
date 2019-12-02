@@ -401,7 +401,7 @@ def SumUpAllUserData(fname):
         if pos > -1:
             vector[-1] = vector[-1][0:pos]
         try:
-            vector_numeric = [int(x) for x in vector]
+            vector_numeric = [float(x) for x in vector]
         except:
             Log('Could not parse data in row: \n')
             Log(row + '\n')
@@ -450,13 +450,12 @@ def SumUpAllUserData(fname):
         f_out.write('Number of users: {0}\n'.format(len(users)))
         f_out.write('Number of trials: {0}\n'.format(N))
         f_out.write('Distribution\n')
-        t_s = [str(x) for x in total]
+        t_s = [format_float(x) for x in total]
         f_out.write('{0}\n'.format(', '.join(t_s)))
 
 
-
-
-
-
-
-
+def format_float(x):
+    out = '{:.1f}'.format(x)
+    if out.endswith('.0'):
+        out = out[0:-2]
+    return out
