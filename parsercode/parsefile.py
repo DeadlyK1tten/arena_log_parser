@@ -113,7 +113,12 @@ def ProcessFile(filename, append_production=False, verbose=False):
         else:
             # Nothing to process
             continue
-
+        if 'timestamp' in d:
+            # TODO: figure out how to convert timestamp to useful format.
+            # The other format (XML) has clean time stamps, but the formatting is multi-line and less stable.
+            timestamp = d['timestamp']
+        else:
+            timestamp = '?'
         # We need see whether a new deck message has been sent.
         new_handler = FindDeck(transact, msg_list)
         if new_handler is not None:
@@ -132,7 +137,7 @@ def ProcessFile(filename, append_production=False, verbose=False):
             if deck_handler.IsDone():
                 if deck_handler.user_name.startswith('DeadlyK1tten'):
                     deck_handler.user_name = 'Amaz1ngK1tten'
-                lline = deck_handler.Format(game_info)
+                lline = deck_handler.Format(game_info, timestamp)
                 handle_last.write(lline)
                 if handle_prod is not None:
                     handle_prod.write(lline)
@@ -233,7 +238,7 @@ class DeckInfo(object):
         self.mulligan = None
         self.draw = None
 
-    def Format(self, game_info):
+    def Format(self, game_info, timestamp):
         Log('Formating draw\n')
         draw = [str(x) for x in self.draw]
         deck = [str(x) for x in self.deck]
@@ -243,7 +248,7 @@ class DeckInfo(object):
         if pos > -1:
             cut_name = cut_name[0:pos]
 
-        row = [self.transact, self.build, cut_name, game_info.match_type, self.file_name, game_info.other_player, self.Paremeters,
+        row = [self.transact, str(timestamp), self.build, cut_name, game_info.match_type, self.file_name, game_info.other_player, self.Paremeters,
                str(self.mulligan)] + draw
         row.append('-1')
         row += deck

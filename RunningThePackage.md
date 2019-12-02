@@ -43,6 +43,8 @@ text database (";"-delimited file).
 - **run_3_create_summary.py** Builds a summary of the various statistical tests based on
 the draw database.
 
+The script *run_all_steps_of_UTC_log_processing.py* does all the above steps in order.
+
 There are other scripts, but for more advanced operations. For example, a land draw database
 can be created (but currently no statistical tests developed).
 

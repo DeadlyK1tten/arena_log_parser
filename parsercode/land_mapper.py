@@ -15,6 +15,8 @@ def build_land_draw_database(use_last=False):
     Log('Starting land draw database construction')
     if use_last:
         f_in = open('draw_database_last.txt', 'r')
+    else:
+        f_in = open('draw_database.txt', 'r')
     f_out = open('land_draws_last.txt', 'w')
     if use_last:
         f_prod = None
