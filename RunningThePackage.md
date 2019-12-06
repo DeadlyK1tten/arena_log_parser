@@ -45,8 +45,16 @@ the draw database.
 
 The script *run_all_steps_of_UTC_log_processing.py* does all the above steps in order.
 
-There are other scripts, but for more advanced operations. For example, a land draw database
-can be created (but currently no statistical tests developed).
+Once this is done, you can create a land draw database and analyse it.
+
+- **run_generate_land_draw_database.py** converts the draw database into a land draw summary,
+'land_draws.txt'. This shows draw and deck based on land/non-land status ('L' or 'N').
+Note that the cards need to be mapped to get land/non-land status, or else '?' appears, and there
+is no way to aggregate them. (Other scripts generate the land mapping, but everything up to
+ELD is covered in the repository.)
+- **run_create_land_summary.py** builds the summary file 'summary_land.txt'
+ 
+There are other scripts, but for more advanced operations. 
 
 The parsing script is most likely to fail due to log file format changes. However, once the
 parsing is complete, the remaining code should work with the draw database, which should 

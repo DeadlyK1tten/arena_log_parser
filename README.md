@@ -20,6 +20,8 @@ https://github.com/dougmill/MTG-Arena-Tool/tree/shuffler-stats
 Note: includes a basic Arena deck manager script (deck_manager.py). This script requires 
 installation of a package that is not in base Python. Google "python pip install instructions"
 
+*NOTE: Land Draw testing added; not heavily documented yet.*
+
 
 # Testing
 
