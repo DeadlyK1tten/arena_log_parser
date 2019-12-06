@@ -201,6 +201,70 @@ class TestAllPositions(Test):
             out += line
         return out
 
+class TestLands(Test):
+    """
+    Look at card draws versus initial position, all modes.
+    """
+    def __init__(self, user='?'):
+        super().__init__(user)
+        self.Tests = {}
+        self.Ntrials = {}
+        self.rejected = 0
+        self.mode_mappings = {}
+
+    def ModeMap(self, mode):
+        if mode.startswith('Play_Brawl'):
+            mode = 'Brawl'
+        if mode.startswith('QuickDraft_'):
+            mode = 'DraftBo1'
+        return mode
+
+    def ProcessRow(self, user, draw, deck, mulligan_count, orig_mode):
+        """
+        As per class description, mode does not matter.
+        :param user:
+        :param draw:
+        :param deck:
+        :param mulligan_count:
+        :param mode:
+        :return:
+        """
+        N = len(deck)
+        self.User = user
+        if ('?' in deck) or ('?' in draw):
+            self.rejected += 1
+            return
+        mode = self.ModeMap(orig_mode)
+        if not (mode == orig_mode):
+            self.mode_mappings[orig_mode] = mode
+        deck_land = sum(['L' == x for x in deck])
+        draw_land = sum(['L' == x for x in draw])
+        test_code = '{0}:{1:02}/{2}'.format(mode, deck_land, N)
+        if mulligan_count > 0:
+            test_code += ':MULL'
+
+        if test_code not in self.Tests:
+            self.Tests[test_code] = [0] * 8
+            self.Ntrials[test_code] = 0
+        self.Tests[test_code][draw_land] += 1
+        self.Ntrials[test_code] += 1
+
+    def GetOutput(self):
+        test_list = list(self.Tests.keys())
+        test_list.sort()
+        out = 'Number of Rejected draws/mulls = {0}\n'.format(self.rejected)
+        for k in self.mode_mappings:
+            out += 'Mapped Mode: {0} -> {1}\n'.format(k, self.mode_mappings[k])
+        for test_code in test_list:
+            row = [test_code, self.User]
+            data = [str(x) for x in self.Tests[test_code]]
+            line = ','.join(row + data)
+            line += '={0}\n'.format(self.Ntrials[test_code])
+            out += line
+        return out
+
+
+
 
 def run_tests(test_list):
     f = open('draw_database.txt', 'r')
@@ -232,3 +296,31 @@ def main():
     test_list = [Test30(), Test30Mulligan(), TestAllPositions()]
     run_tests(test_list)
 
+def run_land_counts():
+    """
+    For now, just copy the code. Should refactor into a single function.
+    :return:
+    """
+    f = open('land_draws.txt', 'r')
+    already_processed = set()
+    test_list = [TestLands()]
+    for row in f:
+        data = row.strip().split(';')
+        user = data[3]
+        mode = data[4]
+        mulligan_count = int(data[8])
+        card_info = data[(utils.draw_database_header_size):]
+        # card_info = [int(x) for x in card_info]
+
+        try:
+            idx = card_info.index(str(utils.draw_database_separator))
+        except ValueError:
+            Log('Row missing deck separator: {0}\n'.format(row))
+            continue
+        for t in test_list:
+            t.ProcessRow(user, card_info[0:idx], card_info[(idx + 1):], mulligan_count, mode)
+    f_out = open('summary_land.txt', 'w')
+    for t in test_list:
+        s = t.GetOutput()
+        print(s)
+        f_out.write(s)

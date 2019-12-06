@@ -18,7 +18,7 @@ if __name__ == '__main__':
     utils.Log('Starting\n')
     try:
         utils.SetWorkingDirectory(__file__)
-        land_mapper.build_land_draw_database(use_last=True)
+        land_mapper.build_land_draw_database(use_last=False)
     except Exception as ex:
         utils.Log(traceback.format_exc() + '\n')
         raise
