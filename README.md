@@ -8,6 +8,10 @@ take a lot of effort to break things.
 
 Testing section down below gives a summary of what to do.
 
+**Note: Testing on Brawl decks either indicated that I hit a low-probability outcome, or there is a bug in
+the test code (possibly reflecting differences in the Brawl format in the logs that I did not
+pick up).** No time to figure out what happened.
+
 **See the file RunningThePackage.md for help.**
 
 Note that there was a GitHub package that forked from the MTGA Tool to generate a big study.
