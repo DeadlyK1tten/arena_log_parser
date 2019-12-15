@@ -22,6 +22,8 @@ installation of a package that is not in base Python. Google "python pip install
 
 *NOTE: Land Draw testing added; not heavily documented yet.*
 
+Note: Some new cards were added to Arena, and the definitions are missing for the land draw
+analysis.
 
 # Testing
 
@@ -97,3 +99,13 @@ testing for.
 
 An initial version based on singleton decks was built, but the singleton requirement is being
 dropped (as per the suggestion by Sirius).
+
+# Custom Tests
+
+The file "custom_tests.py" (found under parsercode) explains how to add your own tests.
+The "30 land test" is implemented in there. If you want to do an exact analogue to that 
+test, how to do so is explained.
+
+You might need to know a bit more about Python if you to change the test logic. However, 
+doing so should be easier, since you just need to worry about the logic of the actual test
+analysis, and everything else is handled for you.

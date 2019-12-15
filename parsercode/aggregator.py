@@ -5,138 +5,10 @@ Note: All tests are aggregated to the same user (last to appear). If someone got
 a multi-user draw database, might need to fix.
 
 """
-
-from parsercode.utils import Log as Log, format_float
+# from parsercode.custom_tests import Test30, Test30Mulligan
+from parsercode.utils import Log as Log, format_float, Test
 import parsercode.utils as utils
-
-
-
-class Test(object):
-    def __init__(self, user):
-        self.User = user
-
-    def ProcessRow(self, user, draw, deck, mulligan_count, mode):
-        pass
-
-    def GetOutput(self):
-        return ''
-
-
-class Test30(Test):
-    """
-    30 land test: deck with 30 plains, 30 swamps, count the number of swamps.
-
-    Only looks at initial draw, not mulligans.
-
-    Defeats the B01 hand picker by being 100% lands. There should be no bias between swamps vs. plains.
-
-    As a result, ignores mode.
-    """
-    def __init__(self, user='?'):
-        super().__init__(user)
-        self.total = [0] * 8
-        self.target = 70405
-        self.Deck = [70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70397,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405,
-               70405]
-
-    def ProcessRow(self, user, draw, deck, mulligan_count, mode):
-        """
-        As per class description, mode does not matter.
-        :param user:
-        :param draw:
-        :param deck:
-        :param mulligan_count:
-        :param mode:
-        :return:
-        """
-        if not mulligan_count == 0:
-            return
-        if utils.decks_equal(deck, self.Deck):
-            cnt = sum([x == self.target for x in draw])
-            self.User = user
-            self.total[cnt] += 1
-
-    def GetOutput(self):
-        row = ['30', self.User] + [str(x) for x in self.total]
-        out = ','.join(row) + '={0}\n'.format(sum(self.total))
-        return out
-
-
-class Test30Mulligan(Test30):
-    """
-    30 land test, including mulligans.
-
-    Easy to build this up. However, not expected to have a bias based on Douglas' earlier arguments.
-    """
-    def ProcessRow(self, user, draw, deck, mulligan_count, mode):
-        if utils.decks_equal(deck, self.Deck):
-            cnt = sum([x == self.target for x in draw])
-            self.User = user
-            self.total[cnt] += 1
-
-    def GetOutput(self):
-        row = ['30MULL', self.User] + [str(x) for x in self.total]
-        out = ','.join(row) + '={0}\n'.format(sum(self.total))
-        return out
-
+import parsercode.custom_tests as custom_tests
 
 class TestAllPositions(Test):
     """
@@ -293,7 +165,8 @@ def run_tests(test_list):
 
 
 def main():
-    test_list = [Test30(), Test30Mulligan(), TestAllPositions()]
+    test_list = custom_tests.CreateTets()
+    test_list.append(TestAllPositions())
     run_tests(test_list)
 
 def run_land_counts():

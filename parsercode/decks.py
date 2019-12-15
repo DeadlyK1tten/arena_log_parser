@@ -1,4 +1,9 @@
 
+"""
+Exact deck testing.
+
+See custom_tests.py for information on how to add your own tests.
+"""
 
 target_decks = [
     {'name': '30 Cards plains/swamp',
@@ -70,4 +75,7 @@ Deck
                70405,
                70405]
 },
+    # NOTE: if you want to add your own custom tests, copy the previous block, and change the data.
+    # Importantly, you need to use a different deck code ("30") as that is what the Test30 class is looking for.
+    # See custom_tests.py for more information
 ]

@@ -459,3 +459,14 @@ def format_float(x):
     if out.endswith('.0'):
         out = out[0:-2]
     return out
+
+
+class Test(object):
+    def __init__(self, user):
+        self.User = user
+
+    def ProcessRow(self, user, draw, deck, mulligan_count, mode):
+        pass
+
+    def GetOutput(self):
+        return ''
